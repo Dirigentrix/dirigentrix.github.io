@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dirigentrix – Cień Kartrix</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Courier New', monospace; }
+        #welcome { position: absolute; bottom: 30px; left: 0; right: 0; text-align: center; color: white; background: rgba(0,0,0,0.6); padding: 15px; font-size: 1.2rem; letter-spacing: 2px; z-index: 10; backdrop-filter: blur(5px); pointer-events: none; font-weight: bold; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        #instruction { position: absolute; bottom: 100px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.5); font-size: 0.8rem; z-index: 10; pointer-events: none; font-family: monospace; }
+        @media (max-width: 768px) { #welcome { font-size: 0.9rem; bottom: 20px; } #instruction { bottom: 70px; font-size: 0.7rem; } }
+    </style>
+</head>
+<body>
+    <div id="welcome">🜁 KARTRIX • CZEŚĆ, JESTEM DARTRIX • ZAPRASZAM 🜂</div>
+    <div id="instruction">✧ mów do mnie • cień reaguje • kontur • barwa • geometria ✧</div>
+    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } } </script>
+    <script type="module" src="shadow.js"></script>
+</body>
+</html>
