@@ -198,7 +198,7 @@ function pauseRecognitionForSpeech() {
 function resumeRecognitionAfterSpeech() {
     recognitionSuspendedForSpeech = false;
     if (micEnabled) {
-        scheduleRecognitionRestart(500);
+        scheduleRecognitionRestart(550);
     }
 }
 
@@ -470,6 +470,14 @@ function resumeListeningAfterReply() {
     if (micEnabled) {
         scheduleRecognitionRestart(550);
     }
+}
+
+function pauseRecognitionForSpeech() {
+    stopListeningForReply();
+}
+
+function resumeRecognitionAfterSpeech() {
+    resumeListeningAfterReply();
 }
 
 function toggleMic() {
