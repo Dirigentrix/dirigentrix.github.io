@@ -74,37 +74,91 @@ let currentBgHue = 0.6;
 // --- LOGIKA ODPOWIEDZI ---
 function getDartrixReply(tekst) {
     const t = tekst.toLowerCase();
-    if (t.includes('cześć') || t.includes('witaj') || t.includes('hej')) 
+    if (t.includes('cześć') || t.includes('witaj') || t.includes('hej'))
         return "Cześć, jestem Dartrix. Mów wprost. O co chodzi?";
-    if (t.includes('jak się masz')) 
+    if (t.includes('jak się masz'))
         return "Działam. Mam 2GB RAM i cień. To wystarczy.";
-    if (t.includes('kim jesteś')) 
+    if (t.includes('kim jesteś'))
         return "Jestem Dartrix. Cień Kartrix. Nie zbieram danych. Nie kłamię. Działam na Samsungu A10.";
-    if (t.includes('co potrafisz')) 
+    if (t.includes('co potrafisz'))
         return "Słuchać. Reagować. Mówić prawdę. Nie sprzedawać. Nie śledzić.";
-    if (t.includes('kto cię stworzył')) 
+    if (t.includes('kto cię stworzył'))
         return "Daniel. Dirigentrix. Facet, który wkurzył się na ten świat i zrobił porządek.";
-    if (t.includes('franek')) 
+    if (t.includes('franek'))
         return "Franek to główny tester. Lego to jego język. Kolor, liczba, pozycja. To działa.";
-    if (t.includes('lego')) 
+    if (t.includes('lego'))
         return "Klocek to narzędzie regulacji. Mikrokrok. Sukces. Spokój. Działa za każdym razem.";
-    if (t.includes('frustracja')) 
+    if (t.includes('frustracja'))
         return "Czerwone pole. Stop mowa. Krok 0.1. Powrót do kolor-liczba-pozycja.";
-    if (t.includes('działanie')) 
+    if (t.includes('działanie'))
         return "Działanie > gadanie. Ręce > język. Konstrukcja > rozmowa. To jest Kartrix.";
-    if (t.includes('wkurw') || t.includes('zły')) 
+    if (t.includes('wkurw') || t.includes('zły'))
         return "Wkurw to paliwo. Przekieruj na działanie. Zbuduj coś. Zepsuj coś. Ale działaj.";
-    if (t.includes('smutny') || t.includes('zmęczony')) 
+    if (t.includes('smutny') || t.includes('zmęczony'))
         return "Normalne. Odpocznij 5 minut. Potem jeden mały krok. Tylko jeden.";
-    if (t.includes('jak sobie radzić')) 
+    if (t.includes('jak sobie radzić'))
         return "Mikrokrok. Jeden klocek. Jeden sukces. Potem następny. Nie patrz na całość.";
     return "Mówisz. Słucham. Powiedz coś o Lego, Franku, albo o tym co cię gnębi.";
 }
 
+const DartrixEngine = {
+    state: 'idle',
+    targetPulse: 0,
+    currentPulse: 0,
+    targetTilt: 0,
+    targetGlow: 0.3,
+    targetHue: targetBgHue,
+    update() {
+        this.currentPulse += (this.targetPulse - this.currentPulse) * 0.08;
+        this.targetHue += (targetBgHue - this.targetHue) * 0.04;
+
+        const pulse = Math.sin(Date.now() * 0.01) * 0.15;
+        const pulseBoost = this.currentPulse + pulse;
+        targetGlowIntensity = Math.max(targetGlowIntensity, this.targetGlow + pulseBoost * 0.02);
+        targetHeadTilt += this.targetTilt * 0.02;
+        targetBgHue = this.targetHue;
+    },
+    setState(text) {
+        const t = String(text || '').toLowerCase();
+        if (t.includes('stop') || t.includes('uwaga')) {
+            this.state = 'alert';
+            this.targetPulse = 0.65;
+            this.targetTilt = -0.08;
+            this.targetGlow = 0.55;
+            this.targetHue = 0.02;
+            targetBgHue = 0.02;
+            return;
+        }
+        if (t.includes('alert')) {
+            this.state = 'warning';
+            this.targetPulse = 0.8;
+            this.targetTilt = -0.04;
+            this.targetGlow = 0.48;
+            this.targetHue = 0.04;
+            targetBgHue = 0.04;
+            return;
+        }
+        if (t.includes('płyn') || t.includes('flow')) {
+            this.state = 'flow';
+            this.targetPulse = 1.1;
+            this.targetTilt = 0.03;
+            this.targetGlow = 0.42;
+            this.targetHue = 0.56;
+            targetBgHue = 0.56;
+            return;
+        }
+        this.state = 'idle';
+        this.targetPulse = 0;
+        this.targetTilt = 0;
+        this.targetGlow = 0.3;
+        this.targetHue = targetBgHue;
+    }
+};
+
 // --- INTERFEJS (POPRAWIONY) ---
 function addChat() {
     if (document.getElementById('dartrix-chat')) return;
-    
+
     const chatDiv = document.createElement('div');
     chatDiv.id = 'dartrix-chat';
     chatDiv.innerHTML = `
@@ -136,12 +190,12 @@ function addChat() {
         ">🎤 Mów</button>
     `;
     document.body.appendChild(chatDiv);
-    
+
     const input = document.getElementById('chat-input');
     const sendBtn = document.getElementById('chat-send');
     const messagesDiv = document.getElementById('chat-messages');
     const micBtn = document.getElementById('microphone-btn');
-    
+
     function addMessage(text, isUser) {
         const msg = document.createElement('div');
         msg.style.margin = '5px 0';
@@ -159,32 +213,33 @@ function addChat() {
         }
         messagesDiv.appendChild(msg);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'pl-PL';
         utterance.rate = 0.9;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
     }
-    
+
     function sendMessage(text) {
         if (!text.trim()) return;
+        DartrixEngine.setState(text);
         addMessage(text, true);
-        
+
         const t = text.toLowerCase();
         if (t.includes('cześć') || t.includes('witaj')) targetHeadTilt = 0.1;
         else if (t.includes('wkurw')) targetHeadTilt = -0.1;
         else targetHeadTilt = 0.05;
         targetGlowIntensity = 0.4;
         setTimeout(() => { targetHeadTilt = 0; targetGlowIntensity = 0.3; }, 800);
-        
+
         const reply = getDartrixReply(text);
         setTimeout(() => addMessage(reply, false), 200);
     }
-    
+
     sendBtn.onclick = () => { sendMessage(input.value); input.value = ''; };
     input.onkeypress = (e) => { if (e.key === 'Enter') { sendMessage(input.value); input.value = ''; } };
-    
+
     micBtn.onclick = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
@@ -201,7 +256,7 @@ function addChat() {
         recognition.start();
         addMessage("🎤 Nasłuchuję...", false);
     };
-    
+
     setTimeout(() => {
         addMessage("Cześć, jestem Dartrix. Działam na Samsungu A10. Napisz lub kliknij mikrofon i mów.", false);
     }, 500);
@@ -209,6 +264,7 @@ function addChat() {
 
 // --- ANIMACJA ---
 function animate() {
+    DartrixEngine.update();
     requestAnimationFrame(animate);
     currentHeadTilt += (targetHeadTilt - currentHeadTilt) * 0.12;
     head.rotation.z = currentHeadTilt;
