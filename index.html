@@ -2,147 +2,582 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Dirigentrix – Cień Kartrix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#050b1a">
+    <title>Dirigentrix v2.0 — Cyber-academic AI Portal</title>
     <style>
         :root {
             color-scheme: dark;
+            --bg: #050b1a;
+            --panel: rgba(8, 16, 36, 0.72);
+            --panel-strong: rgba(10, 18, 42, 0.9);
+            --text: #e9f2ff;
+            --muted: rgba(233, 242, 255, 0.72);
+            --line: rgba(138, 172, 255, 0.18);
+            --blue: #7fb4ff;
+            --pink: #ff73d8;
+            --purple: #9d7bff;
+            --cyan: #77e5ff;
+            --shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
         }
-        html, body {
+
+        * { box-sizing: border-box; }
+
+        html {
+            background: var(--bg);
+            scroll-behavior: smooth;
+        }
+
+        body {
             margin: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Courier New', monospace;
-            background: #050b1a;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(127, 180, 255, 0.16), transparent 34%),
+                radial-gradient(circle at 80% 10%, rgba(255, 115, 216, 0.16), transparent 28%),
+                radial-gradient(circle at 80% 78%, rgba(157, 123, 255, 0.18), transparent 32%),
+                linear-gradient(180deg, #050b1a 0%, #06111f 100%);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        canvas {
+
+        body::before,
+        body::after {
+            content: "";
             position: fixed;
             inset: 0;
-            z-index: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body::before {
+            background: linear-gradient(135deg, rgba(127, 180, 255, 0.08), transparent 32%, rgba(255, 115, 216, 0.08) 67%, transparent 100%);
+            mix-blend-mode: screen;
+        }
+
+        body::after {
+            background-image: linear-gradient(rgba(255,255,255,0.024) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.024) 1px, transparent 1px);
+            background-size: 44px 44px;
+            opacity: 0.22;
+        }
+
+        canvas {
             display: block;
         }
-        #ui {
-            position: fixed;
-            inset: 0;
-            z-index: 10;
-            pointer-events: none;
+
+        #portal {
+            position: relative;
+            z-index: 2;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 18px clamp(18px, 4vw, 42px);
+            backdrop-filter: blur(18px);
+            background: linear-gradient(180deg, rgba(5, 11, 26, 0.9), rgba(5, 11, 26, 0.45));
+            border-bottom: 1px solid rgba(138, 172, 255, 0.12);
+        }
+
+        .brand {
             display: flex;
             flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .brand-kicker {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            letter-spacing: 0.22em;
+            font-size: 0.72rem;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        .brand-title {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            margin: 0;
+            font-size: clamp(1.02rem, 2vw, 1.35rem);
+            letter-spacing: 0.04em;
+        }
+
+        .brand-subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
             justify-content: flex-end;
+            gap: 10px;
         }
-        #welcome {
-            margin: 0 16px 16px;
-            text-align: center;
-            color: white;
-            background: rgba(0,0,0,0.62);
-            padding: 15px;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            backdrop-filter: blur(5px);
+
+        .nav a {
+            text-decoration: none;
+            color: var(--text);
+            padding: 10px 14px;
+            border: 1px solid rgba(138, 172, 255, 0.18);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+            font-size: 0.88rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .nav a:hover {
+            transform: translateY(-1px);
+            border-color: rgba(127, 180, 255, 0.46);
+            background: rgba(127, 180, 255, 0.1);
+        }
+
+        .content {
+            padding: 0 clamp(18px, 4vw, 42px) 34px;
+        }
+
+        .hero {
+            position: relative;
+            min-height: calc(100vh - 86px);
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+            gap: clamp(18px, 4vw, 40px);
+            align-items: center;
+            padding: clamp(20px, 4vw, 42px) 0 28px;
+        }
+
+        .hero-copy {
+            position: relative;
+            z-index: 3;
+            max-width: 720px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 18px;
+            padding: 8px 12px;
+            border: 1px solid rgba(127, 180, 255, 0.18);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--cyan);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            line-height: 0.98;
+            letter-spacing: -0.05em;
+            max-width: 12ch;
+            text-shadow: 0 0 28px rgba(127, 180, 255, 0.22);
+        }
+
+        .hero-text {
+            margin: 20px 0 0;
+            max-width: 62ch;
+            color: var(--muted);
+            font-size: clamp(1rem, 1.6vw, 1.12rem);
+            line-height: 1.72;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .chip {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(138, 172, 255, 0.16);
+            background: rgba(10, 18, 42, 0.58);
+            color: var(--text);
+            font-size: 0.88rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .chip strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .shadow-stage {
+            position: relative;
+            min-height: 56vh;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(138, 172, 255, 0.18);
+            background:
+                radial-gradient(circle at 50% 35%, rgba(127, 180, 255, 0.14), transparent 40%),
+                linear-gradient(180deg, rgba(8, 14, 30, 0.84), rgba(4, 9, 22, 0.92));
+            box-shadow: var(--shadow);
+            isolation: isolate;
+        }
+
+        .shadow-stage canvas {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
             pointer-events: none;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.08);
+            z-index: 1;
         }
-        #instruction {
-            margin: 0 16px 10px;
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.8rem;
-            pointer-events: none;
-        }
-        #chatPanel {
-            margin: 0 16px 18px;
-            padding: 12px;
-            background: rgba(0,0,0,0.55);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(6px);
-            border-radius: 14px;
-            pointer-events: auto;
-        }
-        #chatHeader {
+
+        .shadow-overlay {
+            position: absolute;
+            inset: 18px 18px auto 18px;
+            z-index: 2;
             display: flex;
             justify-content: space-between;
             gap: 12px;
-            align-items: center;
-            color: rgba(255,255,255,0.82);
-            font-size: 0.72rem;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            align-items: flex-start;
+            pointer-events: none;
         }
-        #status {
-            color: rgba(136, 170, 255, 0.95);
+
+        .shadow-badge,
+        .shadow-note {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 172, 255, 0.18);
+            background: rgba(6, 12, 28, 0.5);
+            border-radius: 16px;
+            padding: 10px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(233, 242, 255, 0.86);
         }
-        #messageLog {
-            height: 180px;
-            overflow-y: auto;
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(5, 11, 26, 0.72);
-            color: white;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            margin-bottom: 10px;
+
+        .shadow-note {
+            margin-left: auto;
+            text-align: right;
         }
-        .message {
-            margin: 0 0 8px;
-            white-space: pre-wrap;
-            word-break: break-word;
+
+        .section {
+            position: relative;
+            z-index: 3;
+            margin-top: 18px;
         }
-        .message.user { color: #dbe7ff; }
-        .message.shadow { color: #ffe2b8; }
-        #chatForm {
+
+        .section-label {
+            margin: 0 0 14px;
+            color: var(--cyan);
+            font-size: 0.76rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            position: relative;
+            padding: 22px;
+            border-radius: 22px;
+            border: 1px solid rgba(138, 172, 255, 0.16);
+            background: linear-gradient(180deg, rgba(8, 16, 36, 0.86), rgba(7, 13, 28, 0.76));
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(127, 180, 255, 0.12), transparent 35%, rgba(255, 115, 216, 0.1) 70%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .card h2 {
+            position: relative;
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .card p,
+        .card li {
+            position: relative;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .card ul {
+            position: relative;
+            margin: 14px 0 0;
+            padding-left: 18px;
+        }
+
+        .card li + li { margin-top: 8px; }
+
+        .card .accent {
+            color: #ffffff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .footer {
+            position: relative;
+            z-index: 3;
+            margin: 22px 0 18px;
+            padding: 22px;
+            border-radius: 24px;
+            border: 1px solid rgba(138, 172, 255, 0.16);
+            background: linear-gradient(135deg, rgba(8, 16, 36, 0.9), rgba(10, 18, 42, 0.74));
+            box-shadow: var(--shadow);
             display: flex;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
         }
-        #chatInput {
-            flex: 1;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.06);
-            color: white;
-            padding: 12px 14px;
-            font: inherit;
-            outline: none;
+
+        .motto {
+            margin: 0;
+            font-size: clamp(1.1rem, 2.4vw, 1.65rem);
+            letter-spacing: 0.02em;
+            text-transform: lowercase;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            color: #ffffff;
         }
-        #chatInput::placeholder {
-            color: rgba(255,255,255,0.35);
+
+        .footer small {
+            color: var(--muted);
+            font-size: 0.9rem;
         }
-        #sendButton {
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 10px;
-            background: linear-gradient(135deg, rgba(136,170,255,0.9), rgba(255,170,102,0.75));
-            color: #08111f;
-            padding: 0 16px;
-            font: inherit;
-            font-weight: bold;
-            cursor: pointer;
+
+        #dartrix-chat {
+            position: fixed !important;
+            right: 18px !important;
+            left: auto !important;
+            bottom: 18px !important;
+            width: min(410px, calc(100vw - 36px)) !important;
+            z-index: 30 !important;
         }
-        @media (max-width: 768px) {
-            #welcome { font-size: 0.9rem; }
-            #instruction { font-size: 0.7rem; }
-            #messageLog { height: 150px; font-size: 0.85rem; }
-            #chatInput { padding: 11px 12px; }
+
+        #dartrix-chat #chat-messages {
+            position: static !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin-bottom: 10px !important;
+            background: rgba(5, 11, 26, 0.9) !important;
+            border: 1px solid rgba(127, 180, 255, 0.18) !important;
+            color: #d8e7ff !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        #dartrix-chat > div:nth-child(2) {
+            position: static !important;
+            width: 100% !important;
+            max-width: none !important;
+        }
+
+        #dartrix-chat input,
+        #dartrix-chat button {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+        }
+
+        #dartrix-chat input {
+            background: rgba(5, 11, 26, 0.9) !important;
+            border-color: rgba(127, 180, 255, 0.32) !important;
+        }
+
+        #dartrix-chat button#chat-send {
+            background: linear-gradient(135deg, rgba(127, 180, 255, 0.95), rgba(255, 115, 216, 0.9)) !important;
+            color: #06111f !important;
+        }
+
+        #dartrix-chat button#microphone-btn {
+            position: static !important;
+            margin-top: 10px !important;
+            width: 100% !important;
+            border-radius: 16px !important;
+            background: linear-gradient(135deg, rgba(157, 123, 255, 0.96), rgba(127, 180, 255, 0.86)) !important;
+        }
+
+        @media (max-width: 1100px) {
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .shadow-stage {
+                min-height: 48vh;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav {
+                justify-content: flex-start;
+            }
+
+            .content {
+                padding-bottom: 120px;
+            }
+
+            .hero {
+                padding-top: 14px;
+            }
+
+            .shadow-stage {
+                min-height: 42vh;
+            }
+
+            .shadow-overlay {
+                inset: 14px 14px auto 14px;
+                flex-direction: column;
+            }
+
+            .shadow-note {
+                margin-left: 0;
+                text-align: left;
+            }
+
+            #dartrix-chat {
+                right: 12px !important;
+                left: 12px !important;
+                width: auto !important;
+                bottom: 12px !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div id="welcome">🜁 KARTRIX • CZEŚĆ, JESTEM DARTRIX • ZAPRASZAM 🜂</div>
-        <div id="instruction">✧ mów do mnie lub wpisz wiadomość • cień reaguje • kontur • barwa • geometria ✧</div>
-        <div id="chatPanel" aria-label="DARTRIX CHAT v1.0">
-            <div id="chatHeader">
-                <span>DARTRIX CHAT v1.0</span>
-                <span id="status">offline-first • zero-tracking</span>
+    <div id="portal">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-kicker">dirigentrix.github.io v2.0</div>
+                <h1 class="brand-title">Cyber-academic AI Portal</h1>
+                <p class="brand-subtitle">DARTRIX ecosystem • KARTRIX interface • SONIA intelligence</p>
             </div>
-            <div id="messageLog" aria-live="polite"></div>
-            <form id="chatForm" autocomplete="off">
-                <input id="chatInput" type="text" placeholder="Napisz do Cienia Kartrix…" aria-label="Wiadomość do Dartrix" />
-                <button id="sendButton" type="submit">Wyślij</button>
-            </form>
-        </div>
+            <nav class="nav" aria-label="Repository navigation">
+                <a href="https://github.com/dirigentrix/DARTRIX-PRESENTA" target="_blank" rel="noreferrer">DARTRIX-PRESENTA</a>
+                <a href="https://github.com/dirigentrix/KARTRIX-BACKEND" target="_blank" rel="noreferrer">KARTRIX-BACKEND</a>
+            </nav>
+        </header>
+
+        <main class="content">
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <div class="eyebrow">shadow core / professional presence / zero-tracking mode</div>
+                    <h1 id="hero-title">Cyber-academic portal for orbital AI work</h1>
+                    <p class="hero-text">
+                        This interface wraps the existing Three.js shadow into a clean, neon-accented workspace.
+                        It keeps the visual presence intact while presenting DARTRIX, KARTRIX, and SONIA as a coherent portal.
+                    </p>
+                    <div class="hero-meta">
+                        <span class="chip"><strong>theme</strong> dark mode</span>
+                        <span class="chip"><strong>accent</strong> blue / pink / purple</span>
+                        <span class="chip"><strong>mode</strong> professional AI portal</span>
+                    </div>
+                </div>
+
+                <div class="shadow-stage" id="shadow-stage" aria-label="Three.js shadow stage">
+                    <canvas id="shadow-canvas" aria-hidden="true"></canvas>
+                    <div class="shadow-overlay">
+                        <div class="shadow-badge">three.js shadow canvas</div>
+                        <div class="shadow-note">shadow.js remains active and functional</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" aria-labelledby="cards-title">
+                <p class="section-label" id="cards-title">system overview</p>
+                <div class="card-grid">
+                    <article class="card">
+                        <h2>DARTRIX (Ecosystem)</h2>
+                        <p>
+                            The offline-first ecosystem layer. It focuses on signal discipline, privacy, and a stable path
+                            from noise reduction to usable action.
+                        </p>
+                        <ul>
+                            <li><span class="accent">Zero-tracking</span> posture</li>
+                            <li><span class="accent">Dark-mode</span> resilient UI</li>
+                            <li><span class="accent">Orbital</span> architecture for clean execution</li>
+                        </ul>
+                    </article>
+
+                    <article class="card">
+                        <h2>KARTRIX (Interface)</h2>
+                        <p>
+                            The human-facing contour. It presents the shadow core, Web Speech interaction, and emotional
+                            mapping through geometry, motion, and light rather than mimicry.
+                        </p>
+                        <ul>
+                            <li>Shadow presence anchored by <span class="accent">Three.js</span></li>
+                            <li>Reaction through tilt, glow, and color</li>
+                            <li>Professional shell wrapped around the live canvas</li>
+                        </ul>
+                    </article>
+
+                    <article class="card">
+                        <h2>SONIA (Intelligence)</h2>
+                        <p>
+                            The reasoning layer for structured support. SONIA turns local context into reliable guidance,
+                            keeping the system calm, understandable, and operational.
+                        </p>
+                        <ul>
+                            <li>Context-aware orchestration</li>
+                            <li>Clear, minimal, structured responses</li>
+                            <li>Designed for stable human collaboration</li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <p class="motto">myśl lokalnie działa orbitalnie</p>
+                <small>Dirigentrix portal v2.0 • shadow.js integration preserved</small>
+            </footer>
+        </main>
     </div>
+
+    <script>
+        (function () {
+            const stage = document.getElementById('shadow-stage');
+            const placeholder = document.getElementById('shadow-canvas');
+
+            function adoptShadowCanvas() {
+                if (!stage) return;
+                const canvases = Array.from(document.body.querySelectorAll(':scope > canvas'));
+                const actual = canvases.find((canvas) => canvas !== placeholder);
+                if (!actual || actual.parentElement === stage) return;
+                stage.insertBefore(actual, stage.firstChild);
+            }
+
+            const observer = new MutationObserver(adoptShadowCanvas);
+            observer.observe(document.body, { childList: true });
+            window.addEventListener('load', adoptShadowCanvas);
+            document.addEventListener('DOMContentLoaded', adoptShadowCanvas);
+        }());
+    </script>
     <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } } </script>
     <script type="module" src="shadow.js"></script>
 </body>
