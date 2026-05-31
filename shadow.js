@@ -9,12 +9,22 @@ const STOP_HEX = '#FFB300';
 const ALERT_PULSE_HZ = 1.2;
 
 const backendStateUrl = (() => {
-    const candidates = [
+    const explicitStateUrl = [
         window.KARTRIX_STATE_URL,
         window.KARTRIX_BACKEND_STATE_URL,
         document.body?.dataset?.backendStateUrl,
-    ].filter(Boolean);
-    return candidates[0] || '/state';
+    ].find(Boolean);
+
+    if (explicitStateUrl) {
+        return explicitStateUrl;
+    }
+
+    const backendBaseUrl = window.KARTRIX_BACKEND_URL || document.body?.dataset?.backendUrl;
+    if (backendBaseUrl) {
+        return `${String(backendBaseUrl).replace(/\/$/, '')}/state`;
+    }
+
+    return '/state';
 })();
 
 const scene = new THREE.Scene();
