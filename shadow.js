@@ -8,17 +8,17 @@ const ALERT_HEX = '#A020F0';
 const STOP_HEX = '#FFB300';
 const ALERT_PULSE_HZ = 1.2;
 
-const backendStateUrl = (() => {
-    const explicitStateUrl = [
-        window.KARTRIX_STATE_URL,
-        window.KARTRIX_BACKEND_STATE_URL,
-        document.body?.dataset?.backendStateUrl,
+const backendBaseUrl = (() => {
+    const explicitBaseUrl = [
+        window.KARTRIX_BACKEND_URL,
+        document.body?.dataset?.backendUrl,
     ].find(Boolean);
 
-    if (explicitStateUrl) return explicitStateUrl;
-    const backendBaseUrl = window.KARTRIX_BACKEND_URL || document.body?.dataset?.backendUrl;
-    return backendBaseUrl ? `${String(backendBaseUrl).replace(/\/$/, '')}/state` : '/state';
+    if (explicitBaseUrl) return explicitBaseUrl.replace(/\/$/, '');
+    return '';
 })();
+
+const backendStateUrl = backendBaseUrl ? `${backendBaseUrl}/state` : '/state';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050b1a);
@@ -160,12 +160,32 @@ const addMessage = (text, isUser) => {
     container.scrollTop = container.scrollHeight;
 };
 
-document.getElementById('chat-send').onclick = () => {
+document.getElementById('chat-send').onclick = async () => {
     const input = document.getElementById('chat-input');
-    if(!input.value) return;
-    addMessage(input.value, true);
-    setTimeout(() => addMessage("Signal received. DARTRIX core stable.", false), 500);
+    const userText = input.value;
+    if(!userText) return;
+
+    addMessage(userText, true);
     input.value = '';
+
+    const chatUrl = backendBaseUrl ? `${backendBaseUrl}/chat` : '/chat';
+    
+    try {
+        const response = await fetch(chatUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userText })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            addMessage(data.reply, false);
+        } else {
+            addMessage("Communication link severed. Check backend status.", false);
+        }
+    } catch (e) {
+        addMessage("Error connecting to neural core.", false);
+    }
 };
 
 // --- Animation ---
