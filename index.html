@@ -17,9 +17,6 @@
             --text: #eef4ff;
             --muted: rgba(238, 244, 255, 0.72);
             --line: rgba(0, 175, 255, 0.18);
-            --flow: #00AFFF;
-            --alert: #A020F0;
-            --stop: #FFB300;
             --cyan: #78e7ff;
             --shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
         }
@@ -371,70 +368,6 @@
             z-index: 30 !important;
         }
 
-        #dartrix-chat #chat-messages {
-            position: static !important;
-            width: 100% !important;
-            max-width: none !important;
-            margin-bottom: 10px !important;
-            background: rgba(5, 11, 26, 0.92) !important;
-            border: 1px solid rgba(0, 175, 255, 0.18) !important;
-            color: #d8e7ff !important;
-            box-shadow: var(--shadow) !important;
-        }
-
-        #dartrix-chat > div:nth-child(2) {
-            position: static !important;
-            width: 100% !important;
-            max-width: none !important;
-        }
-
-        #dartrix-chat input,
-        #dartrix-chat button {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
-        }
-
-        #dartrix-chat input {
-            background: rgba(5, 11, 26, 0.92) !important;
-            border-color: rgba(127, 180, 255, 0.32) !important;
-        }
-
-        #dartrix-chat button#chat-send {
-            background: linear-gradient(135deg, rgba(127, 180, 255, 0.95), rgba(255, 115, 216, 0.9)) !important;
-            color: #06111f !important;
-        }
-
-        #dartrix-chat button#microphone-btn {
-            position: static !important;
-            margin-top: 10px !important;
-            width: 100% !important;
-            border-radius: 16px !important;
-            background: linear-gradient(135deg, rgba(157, 123, 255, 0.96), rgba(127, 180, 255, 0.88)) !important;
-        }
-
-
-        .signal-stamp {
-            position: fixed;
-            top: 92px;
-            right: 18px;
-            z-index: 25;
-            display: flex;
-            flex-wrap: wrap; gap: 8px;
-            pointer-events: none;
-        }
-
-        .signal-stamp span {
-            padding: 10px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(0, 175, 255, 0.18);
-            background: rgba(6, 12, 28, 0.7);
-            backdrop-filter: blur(10px);
-            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-            font-size: 0.78rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #eef4ff;
-        }
-
         @media (max-width: 1100px) {
             .hero {
                 grid-template-columns: 1fr;
@@ -481,13 +414,6 @@
                 margin-left: 0;
                 text-align: left;
             }
-
-            #dartrix-chat {
-                right: 12px !important;
-                left: 12px !important;
-                width: auto !important;
-                bottom: 12px !important;
-            }
         }
     </style>
 </head>
@@ -508,24 +434,23 @@
         <main class="content">
             <section class="hero" aria-labelledby="hero-title">
                 <div class="hero-copy">
-                    <div class="eyebrow">offline-first • zero-tracking • speech-ready</div>
+                    <div class="eyebrow">offline-first • zero-tracking • orbital</div>
                     <h1 id="hero-title">Cień, który prowadzi rozmowę i regulację</h1>
                     <p class="hero-text">
-                        Ten układ zachowuje aktywny Three.js shadow, chat i mikrofon, a jednocześnie otacza je spokojną,
-                        profesjonalną warstwą portalową dla Leona i Franka. Interfejs ma pozostać czytelny, stabilny i szybki.
+                        Ten układ zachowuje aktywny Three.js orbital, chat i mikrofon, a jednocześnie otacza je spokojną,
+                        profesjonalną warstwą portalową. Interfejs ma pozostać czytelny, stabilny i szybki.
                     </p>
                     <div class="hero-meta">
-                        <span class="chip"><strong>mode</strong> cyber-academic</span>
+                        <span class="chip"><strong>mode</strong> orbital-dartrix</span>
                         <span class="chip"><strong>logic</strong> leon / franek</span>
-                        <span class="chip"><strong>render</strong> shadow.js intact</span>
+                        <span class="chip"><strong>render</strong> shadow.js active</span>
                     </div>
                 </div>
 
                 <div class="shadow-stage" id="shadow-stage" aria-label="Three.js shadow stage">
-                    <canvas id="shadow-canvas" aria-hidden="true"></canvas>
                     <div class="shadow-overlay">
                         <div class="shadow-badge">three.js canvas</div>
-                        <div class="shadow-note">shadow.js appends the live renderer here</div>
+                        <div class="shadow-note">DARTRIX orbital core active</div>
                     </div>
                 </div>
             </section>
@@ -581,26 +506,7 @@
         </main>
     </div>
 
-    <script>
-        (function () {
-            const stage = document.getElementById('shadow-stage');
-            const placeholder = document.getElementById('shadow-canvas');
-
-            function adoptShadowCanvas() {
-                if (!stage) return;
-                const canvases = Array.from(document.body.querySelectorAll(':scope > canvas'));
-                const actual = canvases.find((canvas) => canvas !== placeholder);
-                if (!actual || actual.parentElement === stage) return;
-                stage.insertBefore(actual, stage.firstChild);
-            }
-
-            const observer = new MutationObserver(adoptShadowCanvas);
-            observer.observe(document.body, { childList: true });
-            window.addEventListener('load', adoptShadowCanvas);
-            document.addEventListener('DOMContentLoaded', adoptShadowCanvas);
-        }());
-    </script>
-    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } } </script>
+    <script type="importmap"> { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } } </script>
     <script type="module" src="shadow.js"></script>
 </body>
 </html>
